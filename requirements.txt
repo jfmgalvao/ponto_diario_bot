@@ -1,0 +1,8 @@
+python-telegram-bot==20.7
+requests==2.31.0
+python-dotenv==1.0.0
+peewee==3.17.0
+psycopg2-binary==2.9.9
+pytz==2023.3
+pandas==2.1.4
+openpyxl==3.1.2
