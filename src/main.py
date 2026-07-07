@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-from models import init_db, User, Ponto, get_now_sp
+from src.models import init_db, User, Ponto, get_now_sp
 
 load_dotenv()
 
