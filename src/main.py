@@ -2,7 +2,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 from src.models import init_db, User, Ponto, get_now_sp
 
@@ -154,6 +154,35 @@ async def relatorio(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     os.remove(filename)
 
+async def ajuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Comando /ajuda
+    Mostra as opções disponíveis para o usuário.
+    """
+    mensagem = (
+        "🤖 *Bem-vindo(a) ao Ponto Diário Bot!*\n\n"
+        "Aqui estão os comandos que você pode usar:\n\n"
+        "🏢 `/iniciar NOME_EMPRESA` - Registra você em uma empresa.\n"
+        "⏱️ `/ponto` ou `/bater_ponto` - Registra sua Entrada ou Saída.\n"
+        "📊 `/relatorio` - Gera uma planilha com os pontos dos últimos 7 dias da sua empresa.\n"
+        "❓ `/ajuda` - Mostra esta mensagem de ajuda.\n\n"
+        "Se tiver dúvidas, fale com o administrador da sua empresa."
+    )
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text=mensagem, 
+        parse_mode="Markdown"
+    )
+
+async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Handler para comandos desconhecidos
+    """
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text="Desculpe, eu não entendi esse comando. Digite /ajuda para ver as opções disponíveis."
+    )
+
 if __name__ == '__main__':
     if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN == 'seu_token_aqui':
         print("ERRO: TELEGRAM_BOT_TOKEN não configurado no .env")
@@ -168,6 +197,11 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('bater_ponto', bater_ponto))
     application.add_handler(CommandHandler('ponto', bater_ponto))
     application.add_handler(CommandHandler('relatorio', relatorio))
+    application.add_handler(CommandHandler('ajuda', ajuda))
+    application.add_handler(CommandHandler('start', ajuda))
+    
+    # Adiciona handler genérico para comandos não reconhecidos
+    application.add_handler(MessageHandler(filters.COMMAND, unknown))
     
     print("Bot rodando! Pressione Ctrl+C para parar.")
     application.run_polling()
